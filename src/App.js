@@ -32,6 +32,7 @@ class App extends Component {
                   pagenum: 1,
                   viewsmap : new Map(),
                   apikey: "f1c662dc68e14d058ea78ccba5448484",
+                  pginit: "http://cors-anywhere.herokuapp.com/",
                   query: '',
                   isloading : true,
                   pageurl : "https://newsapi.org/v2/sources?apiKey=70c030aa0b77453e98ed18165f56dcf8" ,
@@ -46,10 +47,10 @@ class App extends Component {
   handleButton = (event) => {
 
     if(event.target.value === 'All'){
-      var pageurl = "https://newsapi.org/v2/top-headlines?country=in&apiKey=" + this.state.apikey;
+      var pageurl = this.state.pginit + "https://newsapi.org/v2/top-headlines?country=in&apiKey=" + this.state.apikey;
     }
     else{
-      pageurl = "https://newsapi.org/v2/top-headlines?q=" + event.target.value + "&apiKey=" + this.state.apikey
+      pageurl = this.state.pginit + "https://newsapi.org/v2/top-headlines?q=" + event.target.value + "&apiKey=" + this.state.apikey
     }
     var row = null;
     console.log(pageurl)
@@ -74,7 +75,7 @@ class App extends Component {
     event.preventDefault();
     console.log(event.target);
     
-    var pageurl = "https://newsapi.org/v2/top-headlines?country=in&q=" + this.state.query + "&apiKey=" + this.state.apikey;
+    var pageurl = this.state.pginit + "https://newsapi.org/v2/top-headlines?country=in&q=" + this.state.query + "&apiKey=" + this.state.apikey;
 
     var row = null;
     fetch(pageurl).then((response) => {
@@ -113,10 +114,10 @@ nextpage = (event) => {
   var pageurl;
   console.log(this.state.pagenum);
   if(this.state.query === ""){
-    pageurl = "https://newsapi.org/v2/top-headlines?country=in&page="+this.state.pagenum + "&apiKey=" + this.state.apikey
+    pageurl = this.state.pginit + "https://newsapi.org/v2/top-headlines?country=in&page="+this.state.pagenum + "&apiKey=" + this.state.apikey
   }
   else{
-    pageurl = "https://newsapi.org/v2/top-headlines?country=in&q=" + this.state.query + "&page="+this.state.pagenum+ "&apiKey=" + this.state.apikey
+    pageurl = this.state.pginit + "https://newsapi.org/v2/top-headlines?country=in&q=" + this.state.query + "&page="+this.state.pagenum+ "&apiKey=" + this.state.apikey
   }
   
         console.log(pageurl); 
@@ -151,10 +152,10 @@ prevpage = (event) => {
 
   var pageurl;
   if(this.state.query === ""){
-    pageurl = "https://newsapi.org/v2/top-headlines?country=in&page=" + this.state.pagenum + "&apiKey=" + this.state.apikey
+    pageurl = this.state.pginit+ "https://newsapi.org/v2/top-headlines?country=in&page=" + this.state.pagenum + "&apiKey=" + this.state.apikey
   }
   else{
-    pageurl = "https://newsapi.org/v2/top-headlines?country=in&page=" + this.state.pagenum + "&apiKey=" + this.state.apikey;
+    pageurl = this.state.pginit + "https://newsapi.org/v2/top-headlines?country=in&page=" + this.state.pagenum + "&apiKey=" + this.state.apikey;
   }
   
   console.log(this.state.pagenum);
@@ -229,10 +230,11 @@ updatedb = (title)=> {
         this.setState({isloading: false});
       });
   }
+  
 
   render() {
     if(this.state.isloading){
-      return (<h1 style={{textAlign: "center"}}>LOADING</h1>)
+      return (<h1 style={{textAlign: "center", margin: "300px"}}>LOADING</h1>)
     }
     else if(this.state.arraysize < 1){
       return (
@@ -268,7 +270,7 @@ updatedb = (title)=> {
         
         {this.state.data.slice(0,this.state.arraysize-1).map((article,itr) => (
           
-          <div className="container-fluid card" style={{ width: "18rem"}} >
+          <div className="container-fluid card" style={{ width: "80%"}} >
 
             <img className="card-img-top" src={article.urlToImage} alt="Card image cap"/>
             <div className="card-body">
@@ -279,6 +281,10 @@ updatedb = (title)=> {
               <a href={article.url} className="card-link" target="_blank" onClick = {()=> this.updatedb(article.title) } >
                 Read More
               </a>
+              
+              <div>{this.state.apikey}</div>
+
+
 
               <h6 > VIEWS : {this.state.viewsmap.get(article.title) ? this.state.viewsmap.get(article.title)['views'] : 0 } times</h6>
             </div>
