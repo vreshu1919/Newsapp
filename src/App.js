@@ -3,18 +3,18 @@ import "./App.css";
 import "./bootstrap.min.css";
 import * as firebase from 'firebase';
 
-var firebaseConfig = {
-  apiKey: "AIzaSyCt-EjYFjOLDOSAZEcGfNX7Hl2KPy6sIss",
-  authDomain: "newsapp-a2576.firebaseapp.com",
-  databaseURL: "https://newsapp-a2576.firebaseio.com",
-  projectId: "newsapp-a2576",
-  storageBucket: "newsapp-a2576.appspot.com",
-  messagingSenderId: "45308041757",
-  appId: "1:45308041757:web:6f528842067e120b3a44f4",
-  measurementId: "G-TR5WN81E70"
+const firebaseConfig = {
+  apiKey: "AIzaSyAJAp1tsb-Bnb4eNTAPs1W89WnE7lma5ck",
+  authDomain: "news-app-1b18c.firebaseapp.com",
+  databaseURL: "https://news-app-1b18c.firebaseio.com",
+  projectId: "news-app-1b18c",
+  storageBucket: "news-app-1b18c.appspot.com",
+  messagingSenderId: "687664928502",
+  appId: "1:687664928502:web:bd77b2bd31885ba8aa3ed7",
+  measurementId: "G-JC85DDYEME"
 };
 
-firebase.initializeApp(firebaseConfig);
+firebase.initializeApp  (firebaseConfig);
 
 function PrintJumbotron() {
   return (
@@ -28,17 +28,16 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = { data: [],
-                  arraysize: 0,
                   totalElements: 0,
+                  pageSize: 4,
                   pagenum: 1,
                   viewsmap : new Map(),
-                  apikey: "70c030aa0b77453e98ed18165f56dcf8",
+                  apikey: "f1c662dc68e14d058ea78ccba5448484",
                   pginit: "http://cors-anywhere.herokuapp.com/",
                   query: '',
                   category: 'general',
                   pageinit: 'http://ec2-18-222-83-136.us-east-2.compute.amazonaws.com:4500/',
                   isloading : true,
-
                   pageurl : "https://newsapi.org/v2/sources?apiKey=70c030aa0b77453e98ed18165f56dcf8" ,
     };
   }
@@ -48,114 +47,67 @@ class App extends Component {
     this.setState({ query: event.target.value});
   }
 
-  FetchURL(pageurl){
-
+  FetchUrlForCategory(pageurl){
     var row = null;
     console.log(pageurl)
     fetch(pageurl).then((response) => {
       row = response.json();
       row.then((result) => {
-        console.log(result['articles'])
         var jsondata = result["articles"]; 
         this.setState({data: [...jsondata]});
         var s = result["totalResults"]
         this.setState({totalElements: s});
-
-        console.log(this.state.totalElements);
-
+        this.FetchAndDisplayData(this.state.data);
       });
     })
 
   }
   handleButton = (event) => {
-
     this.setState({pagenum: 1});
-    this.setState({category: event.target.value})
     this.setState({query: event.target.value})
     console.log(this.state.category)
-    if(event.target.value === 'All'){
-      var pageurl =  this.state.pageinit + "v2/top-headlines?country=us&apiKey=" + this.state.apikey;
+    if(event.target.value === '' ){
+      var pageurl =  this.state.pageinit + "v2/top-headlines?pageSize=" + this.state.pageSize + "&apiKey=" + this.state.apikey;
     }
     else{
-      pageurl =  this.state.pageinit + "v2/top-headlines?q=" + event.target.value + "&apiKey=" + this.state.apikey
+      pageurl =  this.state.pageinit + "v2/top-headlines?pageSize=" + this.state.pageSize + "&q=" + event.target.value + "&apiKey=" + this.state.apikey
     }
-    
-    this.FetchURL(pageurl)
-    
+    this.FetchUrlForCategory(pageurl)
   }
 
-  fetchurl2(pageurl){
-
+  fetchUrlForNextPage(pageurl){
     var row = null;
     fetch(pageurl).then((response) => {
       row = response.json();
       row.then((result) => {
         this.setState({query: ""});
-        console.log(result['articles'])
-
         var jsondata = result["articles"]; 
         this.setState({data: [...this.state.data, ...jsondata]});
-
-        
+        this.FetchAndDisplayData(this.state.data)
       });
     })
-
   }
 
   handleSubmit = (event) => {
-
     event.preventDefault();
-    console.log(event.target);
-    console.log(this.state.query)
-    
-    var pageurl = this.state.pageinit + "v2/top-headlines?country=us&q=" + this.state.query + "&apiKey=" + this.state.apikey;
-
-    this.FetchURL(pageurl);
-
-    
+    var pageurl = this.state.pageinit + "v2/top-headlines?pageSize=" + this.state.pageSize + "&country=us&q=" + this.state.query + "&apiKey=" + this.state.apikey;
+    this.FetchUrlForCategory(pageurl);
   }
 
   newnextpage = () =>{
 
       this.setState({pagenum: this.state.pagenum+1}, ()=>{
-
-      console.log(this.state.query);
-      console.log(this.state.category);
       var pageurl;
       console.log(this.state.pagenum);
       if(this.state.query === ""){
-        pageurl = this.state.pageinit + "v2/top-headlines?country=us&page="+this.state.pagenum + "&apiKey=" + this.state.apikey
+        pageurl = this.state.pageinit + "v2/top-headlines?country=us&pageSize=" + this.state.pageSize + "&page="+this.state.pagenum + "&apiKey=" + this.state.apikey
       }
       else{
-        pageurl = this.state.pageinit + "v2/top-headlines?country=us&q=" + this.state.query + "&page="+this.state.pagenum+ "&apiKey=" + this.state.apikey
+        pageurl = this.state.pageinit + "v2/top-headlines?country=us&pageSize=" + this.state.pageSize + "&q=" + this.state.query + "&page="+this.state.pagenum+ "&apiKey=" + this.state.apikey
       }
-      this.fetchurl2(pageurl);
+      this.fetchUrlForNextPage(pageurl);
 });
 }
-
-
-
-
-nextpage = (event) => {
-
-        event.preventDefault();
-        this.setState({pagenum: this.state.pagenum+1}, ()=>{
-
-        console.log(this.state.query);
-        console.log(this.state.category);
-        var pageurl;
-        console.log(this.state.pagenum);
-        if(this.state.query === ""){
-          pageurl = this.state.pageinit + "v2/top-headlines?country=us&page="+this.state.pagenum + "&apiKey=" + this.state.apikey
-        }
-        else{
-          pageurl = this.state.pageinit + "v2/top-headlines?country=us&q=" + this.state.query + "&page="+this.state.pagenum+ "&apiKey=" + this.state.apikey
-        }
-  
-        this.fetchurl2(pageurl);
-  });
-}
-
 
 updatedb = (title)=> {
 
@@ -168,92 +120,78 @@ updatedb = (title)=> {
           })
 }
 
+FetchAndDisplayData(data){
+
+  this.state.data.map((dataelem,itr) => {
+      
+             var reff = firebase.firestore().collection("times").doc(dataelem['title']);
+              reff.get().then((res) => {
+                if (!res.exists) {
+                  reff.set({ views: 0 })
+                    }})
+
+            
+  });
+
+  var db = firebase.firestore().collection('times').get().then((querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+      //console.log(doc);
+      this.setState({viewsmap:this.state.viewsmap.set(doc.id, doc.data())})
+    })
+  })
+
+}
+
 fetchUrl(url){
   var row = null;
   fetch(url).then((response) => {
     row = response.json();
     row.then((result) => {   
       var jsondata = result["articles"]; 
-      console.log(jsondata.length)
       var s = result["totalResults"]
-      console.log(s)
       this.setState({data: [...this.state.data, ...jsondata]});
       this.setState({totalElements: s});
-
-
-      console.log(this.state.totalElements);
-
-      console.log(this.state.data)
-      this.state.data.map((dataelem,itr) => {
-      
-        console.log(dataelem['title'])
-
-                 var reff = firebase.firestore().collection("times").doc(dataelem['title']);
-                  reff.get().then((res) => {
-                    if (!res.exists) {
-                      reff.set({ views: 0 })
-                        }})
-
-                
+      this.FetchAndDisplayData(this.state.data);
       });
-
-      var db = firebase.firestore().collection('times').get().then((querySnapshot) => {
-        querySnapshot.forEach((doc) => {
-          console.log(doc);
-          this.setState({viewsmap:this.state.viewsmap.set(doc.id, doc.data())},()=>{console.log(this.state.viewsmap)})
-        })
-      })
-
-      });
-
       this.setState({isloading: false});
     });
-  
+    
 }
 
   componentDidMount(){
-    if(this.state.pagenum == 1){
-      var url = this.state.pageinit + "v2/top-headlines?country=us&apiKey=" + this.state.apikey;
-      this.fetchUrl(url);
 
-    }
-    else{
-      var url = this.state.pageinit + "v2/top-headlines?country=us&page=" +this.state.pagenum + "&apiKey=" + this.state.apikey;
+    var url = this.state.pageinit + "v2/top-headlines?country=us&pageSize=" + this.state.pageSize + "&page=" +this.state.pagenum + "&apiKey=" + this.state.apikey;
       this.fetchUrl(url);
-    }
 
     window.onscroll = (ev) => {
       if ((window.innerHeight + window.pageYOffset) >= document.body.offsetHeight) {
-        
         if(this.state.totalElements !== this.state.data.length){
+          
           this.newnextpage()
+        }
+        else{
+          alert("You have reached the end of NewsFeed")
+          return;
+
         }
       }
     }
 
   }
 
-  
-  
-
   render() {
     if(this.state.isloading){
       return (<h1 style={{textAlign: "center", margin: "300px"}}>LOADING</h1>)
     }
 
-    if(this.state.totalElements == 0){
+    if(this.state.totalElements === 0){
       return (<div>
                   <h1 style={{textAlign: "center"}}>NO DATA </h1>
                   <button type="button" className="btn btn-secondary" style={{textAlign: "center"}} value = {'All'} onClick = { this.handleButton}>Homepage</button>
                   </div>
             )
-
-
     }
 
-    
-
-    
     return ( 
       <div className="App">
         <PrintJumbotron />
