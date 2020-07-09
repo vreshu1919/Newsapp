@@ -4,14 +4,8 @@ import "./bootstrap.min.css";
 import * as firebase from 'firebase';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAJAp1tsb-Bnb4eNTAPs1W89WnE7lma5ck",
-  authDomain: "news-app-1b18c.firebaseapp.com",
-  databaseURL: "https://news-app-1b18c.firebaseio.com",
-  projectId: "news-app-1b18c",
-  storageBucket: "news-app-1b18c.appspot.com",
-  messagingSenderId: "687664928502",
-  appId: "1:687664928502:web:bd77b2bd31885ba8aa3ed7",
-  measurementId: "G-JC85DDYEME"
+  // ADD YOUR FIREBASE CONFIG HERE
+  
 };
 
 firebase.initializeApp  (firebaseConfig);
@@ -32,7 +26,8 @@ class App extends Component {
                   pageSize: 4,
                   pagenum: 1,
                   viewsmap : new Map(),
-                  apikey: "f1c662dc68e14d058ea78ccba5448484",
+                  // apikey : ### --- ADD YOUR NEWSAPI KEY HERE
+                  
                   pginit: "http://cors-anywhere.herokuapp.com/",
                   query: '',
                   category: 'general',
