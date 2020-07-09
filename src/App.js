@@ -33,9 +33,11 @@ class App extends Component {
                   pagenum: 1,
                   viewsmap : new Map(),
                   apikey: "f1c662dc68e14d058ea78ccba5448484",
-                  pginit: "http://ec2-18-222-83-136.us-east-2.compute.amazonaws.com:4500/",
+                  pginit: "http://cors-anywhere.herokuapp.com/",
                   query: '',
+                  pageinit: 'http://ec2-18-222-83-136.us-east-2.compute.amazonaws.com:4500/',
                   isloading : true,
+
                   pageurl : "https://newsapi.org/v2/sources?apiKey=70c030aa0b77453e98ed18165f56dcf8" ,
     };
   }
@@ -68,13 +70,13 @@ class App extends Component {
     this.setState({query: event.target.value})
 
     if(event.target.value === 'All'){
-      var pageurl =  this.state.pginit + "v2/top-headlines?country=in&apiKey=" + this.state.apikey;
+      var pageurl =  this.state.pageinit + "v2/top-headlines?country=in&apiKey=" + this.state.apikey;
     }
     else{
-      pageurl =  this.state.pginit + "v2/top-headlines?country=in&q=" + event.target.value + "&apiKey=" + this.state.apikey
+      pageurl =  this.state.pageinit + "v2/top-headlines?q=" + event.target.value + "&apiKey=" + this.state.apikey
     }
     
-    this.FetchURL(pageurl )
+    this.FetchURL(pageurl)
     
   }
 
@@ -90,9 +92,7 @@ class App extends Component {
         var jsondata = result["articles"]; 
         this.setState({data: [...this.state.data, ...jsondata]});
 
-        var s = result["totalResults"]
-        this.setState({totalElements: s});
-
+        
       });
     })
 
@@ -102,11 +102,12 @@ class App extends Component {
 
     event.preventDefault();
     console.log(event.target);
+    console.log(this.state.query)
     
-    var pageurl = this.state.pginit + "v2/top-headlines?country=in&q=" + this.state.query + "&apiKey=" + this.state.apikey;
+    var pageurl = this.state.pageinit + "v2/top-headlines?country=in&q=" + this.state.query + "&apiKey=" + this.state.apikey;
 
-    this.fetchurl2(pageurl);
-    
+    this.FetchURL(pageurl);
+
     
   }
 
@@ -118,14 +119,11 @@ nextpage = (event) => {
         console.log(this.state.query);
         var pageurl;
         console.log(this.state.pagenum);
-        if(this.state.query === "All" || this.state.query === ""){
-          pageurl = this.state.pginit + "v2/top-headlines?country=in&page="+this.state.pagenum + "&apiKey=" + this.state.apikey
+        if(this.state.query === "" || this.state.query==="All"){
+          pageurl = this.state.pageinit + "v2/top-headlines?country=in&page="+this.state.pagenum + "&apiKey=" + this.state.apikey
         }
         else{
-          var t = this.state.pagenum  + 1;
-          pageurl = this.state.pginit + "v2/top-headlines?country=in&q=" + this.state.query + "&page="+t + "&apiKey=" + this.state.apikey
-          console.log(pageurl);
-          
+          pageurl = this.state.pageinit + "v2/top-headlines?country=in&q=" + this.state.query + "&page="+this.state.pagenum+ "&apiKey=" + this.state.apikey
         }
   
         this.fetchurl2(pageurl);
@@ -192,12 +190,12 @@ fetchUrl(url){
 
   componentDidMount(){
     if(this.state.pagenum == 1){
-      var url = this.state.pginit + "v2/top-headlines?country=in&apiKey=" + this.state.apikey;
+      var url = this.state.pageinit + "v2/top-headlines?country=in&apiKey=" + this.state.apikey;
       this.fetchUrl(url);
 
     }
     else{
-      var url = this.state.pginit + "v2/top-headlines?country=in&page=" +this.state.pagenum + "&apiKey=" + this.state.apikey;
+      var url = this.state.pageinit + "v2/top-headlines?country=in&page=" +this.state.pagenum + "&apiKey=" + this.state.apikey;
       this.fetchUrl(url);
     }
   
