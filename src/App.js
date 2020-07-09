@@ -118,7 +118,7 @@ nextpage = (event) => {
         console.log(this.state.query);
         var pageurl;
         console.log(this.state.pagenum);
-        if(this.state.query === "All"){
+        if(this.state.query === "All" || this.state.query === ""){
           pageurl = this.state.pginit + "v2/top-headlines?country=in&page="+this.state.pagenum + "&apiKey=" + this.state.apikey
         }
         else{
