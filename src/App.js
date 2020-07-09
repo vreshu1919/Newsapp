@@ -74,7 +74,7 @@ class App extends Component {
     this.setState({query: event.target.value})
     console.log(this.state.category)
     if(event.target.value === 'All'){
-      var pageurl =  this.state.pageinit + "v2/top-headlines?country=in&apiKey=" + this.state.apikey;
+      var pageurl =  this.state.pageinit + "v2/top-headlines?country=us&apiKey=" + this.state.apikey;
     }
     else{
       pageurl =  this.state.pageinit + "v2/top-headlines?q=" + event.target.value + "&apiKey=" + this.state.apikey
@@ -108,12 +108,33 @@ class App extends Component {
     console.log(event.target);
     console.log(this.state.query)
     
-    var pageurl = this.state.pageinit + "v2/top-headlines?country=in&q=" + this.state.query + "&apiKey=" + this.state.apikey;
+    var pageurl = this.state.pageinit + "v2/top-headlines?country=us&q=" + this.state.query + "&apiKey=" + this.state.apikey;
 
     this.FetchURL(pageurl);
 
     
   }
+
+  newnextpage = () =>{
+
+      this.setState({pagenum: this.state.pagenum+1}, ()=>{
+
+      console.log(this.state.query);
+      console.log(this.state.category);
+      var pageurl;
+      console.log(this.state.pagenum);
+      if(this.state.query === ""){
+        pageurl = this.state.pageinit + "v2/top-headlines?country=us&page="+this.state.pagenum + "&apiKey=" + this.state.apikey
+      }
+      else{
+        pageurl = this.state.pageinit + "v2/top-headlines?country=us&q=" + this.state.query + "&page="+this.state.pagenum+ "&apiKey=" + this.state.apikey
+      }
+      this.fetchurl2(pageurl);
+});
+}
+
+
+
 
 nextpage = (event) => {
 
@@ -125,10 +146,10 @@ nextpage = (event) => {
         var pageurl;
         console.log(this.state.pagenum);
         if(this.state.query === ""){
-          pageurl = this.state.pageinit + "v2/top-headlines?country=in&page="+this.state.pagenum + "&apiKey=" + this.state.apikey
+          pageurl = this.state.pageinit + "v2/top-headlines?country=us&page="+this.state.pagenum + "&apiKey=" + this.state.apikey
         }
         else{
-          pageurl = this.state.pageinit + "v2/top-headlines?country=in&q=" + this.state.query + "&page="+this.state.pagenum+ "&apiKey=" + this.state.apikey
+          pageurl = this.state.pageinit + "v2/top-headlines?country=us&q=" + this.state.query + "&page="+this.state.pagenum+ "&apiKey=" + this.state.apikey
         }
   
         this.fetchurl2(pageurl);
@@ -164,13 +185,9 @@ fetchUrl(url){
 
       console.log(this.state.data)
       this.state.data.map((dataelem,itr) => {
-        
-        this.setState({totalElements: this.state.data.length})
-        console.log(this.state.data.length)
-
+      
         console.log(dataelem['title'])
 
-        this.setState({totalElements:this.state.data.length })
                  var reff = firebase.firestore().collection("times").doc(dataelem['title']);
                   reff.get().then((res) => {
                     if (!res.exists) {
@@ -204,9 +221,19 @@ fetchUrl(url){
       var url = this.state.pageinit + "v2/top-headlines?country=us&page=" +this.state.pagenum + "&apiKey=" + this.state.apikey;
       this.fetchUrl(url);
     }
-  
+
+    window.onscroll = (ev) => {
+      if ((window.innerHeight + window.pageYOffset) >= document.body.offsetHeight) {
+        
+        if(this.state.totalElements !== this.state.data.length){
+          this.newnextpage()
+        }
+      }
+    }
 
   }
+
+  
   
 
   render() {
@@ -224,6 +251,9 @@ fetchUrl(url){
 
     }
 
+    
+
+    
     return ( 
       <div className="App">
         <PrintJumbotron />
@@ -259,7 +289,7 @@ fetchUrl(url){
               <a href={article.url} className="card-link" target="_blank" onClick = {()=> this.updatedb(article.title) } >
                 Read More
               </a>
-
+              
               <h6 > VIEWS : {this.state.viewsmap.get(article.title) ? this.state.viewsmap.get(article.title)['views'] : 0 } times</h6>
             </div>
             
@@ -267,8 +297,7 @@ fetchUrl(url){
           
         ))}
 
-        <div>{this.state.totalElements !== this.state.data.length ? <button type="button" className="btn btn-secondary" value = {this.state.pagenum} onClick = { this.nextpage} pquery = {this.state.query}>View More</button> : console.log("end of results") }</div>
-  
+        
       </div>
     );
   }
