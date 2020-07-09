@@ -29,10 +29,11 @@ class App extends Component {
     super(props);
     this.state = { data: [],
                   arraysize: 0,
+                  totalElements: 0,
                   pagenum: 1,
                   viewsmap : new Map(),
                   apikey: "f1c662dc68e14d058ea78ccba5448484",
-                  pginit: "http://cors-anywhere.herokuapp.com/",
+                  pginit: "http://ec2-18-222-83-136.us-east-2.compute.amazonaws.com:4500/",
                   query: '',
                   isloading : true,
                   pageurl : "https://newsapi.org/v2/sources?apiKey=70c030aa0b77453e98ed18165f56dcf8" ,
@@ -44,14 +45,8 @@ class App extends Component {
     this.setState({ query: event.target.value});
   }
 
-  handleButton = (event) => {
+  FetchURL(pageurl){
 
-    if(event.target.value === 'All'){
-      var pageurl = this.state.pginit + "https://newsapi.org/v2/top-headlines?country=in&apiKey=" + this.state.apikey;
-    }
-    else{
-      pageurl = this.state.pginit + "https://newsapi.org/v2/top-headlines?q=" + event.target.value + "&apiKey=" + this.state.apikey
-    }
     var row = null;
     console.log(pageurl)
     fetch(pageurl).then((response) => {
@@ -59,23 +54,31 @@ class App extends Component {
       row.then((result) => {
         console.log(result['articles'])
         var jsondata = result["articles"]; 
-        this.setState({data: [...jsondata, this.state.data]});
-        this.state.data.map((elem,itr)=>{
-          this.setState({dict: elem.title})
-          console.log(this.state.dict)
-          console.log(itr)
-          this.setState({arraysize: this.state.data.length - 1 })
-        })
+        this.setState({data: [...jsondata]});
+        var s = result["totalResults"]
+        this.setState({totalElements: s});
+
       });
     })
+
+  }
+  handleButton = (event) => {
+
+    this.setState({pagenum: 1});
+    this.setState({query: event.target.value})
+
+    if(event.target.value === 'All'){
+      var pageurl =  this.state.pginit + "v2/top-headlines?country=in&apiKey=" + this.state.apikey;
+    }
+    else{
+      pageurl =  this.state.pginit + "v2/top-headlines?country=in&q=" + event.target.value + "&apiKey=" + this.state.apikey
+    }
+    
+    this.FetchURL(pageurl )
+    
   }
 
-  handleSubmit = (event) => {
-
-    event.preventDefault();
-    console.log(event.target);
-    
-    var pageurl = this.state.pginit + "https://newsapi.org/v2/top-headlines?country=in&q=" + this.state.query + "&apiKey=" + this.state.apikey;
+  fetchurl2(pageurl){
 
     var row = null;
     fetch(pageurl).then((response) => {
@@ -85,97 +88,48 @@ class App extends Component {
         console.log(result['articles'])
 
         var jsondata = result["articles"]; 
-        this.setState({data: [...jsondata, ...this.state.data]});
+        this.setState({data: [...this.state.data, ...jsondata]});
 
-        if(result['articles'].length == 0){
-          this.setState({arraysize: 0})
-        }
-        else if(result['articles'].length == 1){
-          this.setState({arraysize: 2})
-        }
-        else{
-          
-        this.state.data.map((dataelem,itr) => {
-          console.log(this.state.data.length)
-          this.setState({arraysize: this.state.data.length - 1 })
-         })
-        }
+        var s = result["totalResults"]
+        this.setState({totalElements: s});
+
       });
     })
+
+  }
+
+  handleSubmit = (event) => {
+
+    event.preventDefault();
+    console.log(event.target);
+    
+    var pageurl = this.state.pginit + "v2/top-headlines?country=in&q=" + this.state.query + "&apiKey=" + this.state.apikey;
+
+    this.fetchurl2(pageurl);
+    
+    
   }
 
 nextpage = (event) => {
-  console.log(event.target)
-  event.preventDefault();
 
-  var t = parseInt(event.target.value)+1
-  this.setState({pagenum: t});
-  console.log(this.state.query);
-  var pageurl;
-  console.log(this.state.pagenum);
-  if(this.state.query === ""){
-    pageurl = this.state.pginit + "https://newsapi.org/v2/top-headlines?country=in&page="+this.state.pagenum + "&apiKey=" + this.state.apikey
-  }
-  else{
-    pageurl = this.state.pginit + "https://newsapi.org/v2/top-headlines?country=in&q=" + this.state.query + "&page="+this.state.pagenum+ "&apiKey=" + this.state.apikey
-  }
-  
-        console.log(pageurl); 
+        event.preventDefault();
+        this.setState({pagenum: this.state.pagenum+1}, ()=>{
+
+        console.log(this.state.query);
+        var pageurl;
         console.log(this.state.pagenum);
-    var row = null;
-    fetch(pageurl).then((response) => {
-      row = response.json();
-      row.then((result) => {
-        console.log(result['articles'])
-        var jsondata = result["articles"]; 
-        //jsondata.map((jdata) => {this.state.data.push(jdata) });
-        this.setState({data: [...jsondata, this.state.data]});
-
-        this.state.data.map((dataelem,itr) => {
-          console.log(this.state.data.length)
-          this.setState({arraysize: this.state.data.length - 1 })
-        })
-      });
-    })
-}
-
-prevpage = (event) => {
-  event.preventDefault();
-  var t = parseInt(event.target.value)-1
-  if(t <=1){
-    this.setState({pagenum:1});
-  }
-  else{  
-  this.setState({pagenum: t});
-  }
+        if(this.state.query === "All"){
+          pageurl = this.state.pginit + "v2/top-headlines?country=in&page="+this.state.pagenum + "&apiKey=" + this.state.apikey
+        }
+        else{
+          var t = this.state.pagenum  + 1;
+          pageurl = this.state.pginit + "v2/top-headlines?country=in&q=" + this.state.query + "&page="+t + "&apiKey=" + this.state.apikey
+          console.log(pageurl);
+          
+        }
   
-
-  var pageurl;
-  if(this.state.query === ""){
-    pageurl = this.state.pginit+ "https://newsapi.org/v2/top-headlines?country=in&page=" + this.state.pagenum + "&apiKey=" + this.state.apikey
-  }
-  else{
-    pageurl = this.state.pginit + "https://newsapi.org/v2/top-headlines?country=in&page=" + this.state.pagenum + "&apiKey=" + this.state.apikey;
-  }
-  
-  console.log(this.state.pagenum);
-  
-        console.log(pageurl);
-        console.log(this.state.pagenum);
-    var row = null;
-    fetch(pageurl).then((response) => {
-      row = response.json();
-      row.then((result) => {
-        console.log(result['articles'])
-        var jsondata = result["articles"]; 
-        this.setState({data: [...jsondata, this.state.data]});
-
-        this.state.data.map((dataelem,itr) => {
-          console.log(this.state.data.length)
-          this.setState({arraysize: this.state.data.length - 2 })
-        })
-      });
-    })
+        this.fetchurl2(pageurl);
+  });
 }
 
 
@@ -190,45 +144,64 @@ updatedb = (title)=> {
           })
 }
 
-  componentDidMount(){
-  var url = "https://newsapi.org/v2/top-headlines?country=in&apiKey=" + this.state.apikey;
-   var row = null;
-    fetch(url).then((response) => {
-      row = response.json();
-      row.then((result) => {
-        console.log(result['articles'])
-        var jsondata = result["articles"]; 
+fetchUrl(url){
+  var row = null;
+  fetch(url).then((response) => {
+    row = response.json();
+    row.then((result) => {   
+      var jsondata = result["articles"]; 
+      console.log(jsondata.length)
+      var s = result["totalResults"]
+      console.log(s)
+      this.setState({data: [...this.state.data, ...jsondata]});
+      this.setState({totalElements: s});
+
+
+      console.log(this.state.totalElements);
+
+      
+      this.state.data.map((dataelem,itr) => {
         
-        //jsondata.map((jdata) => {this.state.data.push(jdata) });
-        this.setState({data: [...jsondata, this.state.data]});
+        this.setState({arraysize: this.state.data.length - 2 })
+        console.log(this.state.data.length)
+        console.log(this.state.arraysize)
+        if(this.state.data.length - itr >=2 ){
+                 var reff = firebase.firestore().collection("times").doc(dataelem['title']);
+                  reff.get().then((res) => {
+                    if (!res.exists) {
+                      reff.set({ views: 0 })
+                        }})
 
-        this.state.data.map((dataelem,itr) => {
-          
-          this.setState({arraysize: this.state.data.length - 2 })
-          console.log(this.state.data.length)
-          console.log(this.state.arraysize)
-          if(this.state.data.length - itr >=2 ){
-                   var reff = firebase.firestore().collection("times").doc(dataelem['title']);
-                    reff.get().then((res) => {
-                      if (!res.exists) {
-                        reff.set({ views: 0 })
-                          }})
-
-                          
-        }
-        });
-
-        var db = firebase.firestore().collection('times').get().then((querySnapshot) => {
-          querySnapshot.forEach((doc) => {
-            console.log(doc);
-            this.setState({viewsmap:this.state.viewsmap.set(doc.id, doc.data())},()=>{console.log(this.state.viewsmap)})
-          })
-        })
-
-        });
-
-        this.setState({isloading: false});
+                        
+      }
       });
+
+      var db = firebase.firestore().collection('times').get().then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          console.log(doc);
+          this.setState({viewsmap:this.state.viewsmap.set(doc.id, doc.data())},()=>{console.log(this.state.viewsmap)})
+        })
+      })
+
+      });
+
+      this.setState({isloading: false});
+    });
+  
+}
+
+  componentDidMount(){
+    if(this.state.pagenum == 1){
+      var url = this.state.pginit + "v2/top-headlines?country=in&apiKey=" + this.state.apikey;
+      this.fetchUrl(url);
+
+    }
+    else{
+      var url = this.state.pginit + "v2/top-headlines?country=in&page=" +this.state.pagenum + "&apiKey=" + this.state.apikey;
+      this.fetchUrl(url);
+    }
+  
+
   }
   
 
@@ -236,15 +209,7 @@ updatedb = (title)=> {
     if(this.state.isloading){
       return (<h1 style={{textAlign: "center", margin: "300px"}}>LOADING</h1>)
     }
-    else if(this.state.arraysize < 1){
-      return (
-        <div>
-          <h1 style={{textAlign: "center", margin: "300px"}}>No Data Here</h1>
-          <button style={{textAlign: "center"}} type="button" className="btn btn-secondary text-center" value = {'All'} onClick = { this.handleButton}>All</button>
-          
-        </div>
-      )
-    }
+
     return ( 
       <div className="App">
         <PrintJumbotron />
@@ -268,7 +233,7 @@ updatedb = (title)=> {
           
         </form>
         
-        {this.state.data.slice(0,this.state.arraysize-1).map((article,itr) => (
+        {this.state.data.map((article,itr) => (
           
           <div className="container-fluid card" style={{ width: "80%"}} >
 
@@ -281,10 +246,6 @@ updatedb = (title)=> {
               <a href={article.url} className="card-link" target="_blank" onClick = {()=> this.updatedb(article.title) } >
                 Read More
               </a>
-              
-              <div>{this.state.apikey}</div>
-
-
 
               <h6 > VIEWS : {this.state.viewsmap.get(article.title) ? this.state.viewsmap.get(article.title)['views'] : 0 } times</h6>
             </div>
@@ -292,7 +253,8 @@ updatedb = (title)=> {
           </div>
           
         ))}
-        <div>{this.state.arraysize  > 2 ? <button type="button" className="btn btn-secondary" value = {this.state.pagenum} onClick = { this.nextpage} pquery = {this.state.query}>View More</button> : console.log("end of results") }</div>
+
+        <div>{this.state.totalElements !== this.state.data.length ? <button type="button" className="btn btn-secondary" value = {this.state.pagenum} onClick = { this.nextpage} pquery = {this.state.query}>View More</button> : console.log("end of results") }</div>
   
       </div>
     );
