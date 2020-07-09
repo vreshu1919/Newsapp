@@ -35,6 +35,7 @@ class App extends Component {
                   apikey: "70c030aa0b77453e98ed18165f56dcf8",
                   pginit: "http://cors-anywhere.herokuapp.com/",
                   query: '',
+                  category: '',
                   pageinit: 'http://ec2-18-222-83-136.us-east-2.compute.amazonaws.com:4500/',
                   isloading : true,
 
@@ -60,6 +61,8 @@ class App extends Component {
         var s = result["totalResults"]
         this.setState({totalElements: s});
 
+        console.log(this.state.totalElements);
+
       });
     })
 
@@ -68,7 +71,7 @@ class App extends Component {
 
     this.setState({pagenum: 1});
     this.setState({query: event.target.value})
-
+    
     if(event.target.value === 'All'){
       var pageurl =  this.state.pageinit + "v2/top-headlines?country=in&apiKey=" + this.state.apikey;
     }
@@ -208,14 +211,23 @@ fetchUrl(url){
       return (<h1 style={{textAlign: "center", margin: "300px"}}>LOADING</h1>)
     }
 
+    if(this.state.totalElements == 0){
+      return (<div>
+                  <h1 style={{textAlign: "center"}}>NO DATA </h1>
+                  <button type="button" className="btn btn-secondary" style={{textAlign: "center"}} value = {'All'} onClick = { this.handleButton}>Homepage</button>
+                  </div>
+            )
+
+
+    }
+
     return ( 
       <div className="App">
         <PrintJumbotron />
         <div className="btn-group" role="group" aria-label="Basic example">
-          <button type="button" className="btn btn-secondary" value = {'All'} onClick = { this.handleButton}>All</button>
+          <button type="button" className="btn btn-secondary" value = {'All'} onClick = { this.handleButton}>General</button>
           <button type="button" className="btn btn-secondary" value = {'business'} onClick = { this.handleButton}>Business</button>
           <button type="button" className="btn btn-secondary" value = {'Entertainment'} onClick = { this.handleButton}>Entertainment</button>
-          <button type="button" className="btn btn-secondary" value = {'General'} onClick = { this.handleButton}>General</button>
           <button type="button" className="btn btn-secondary" value = {'Health'} onClick = { this.handleButton}>Health</button>
           <button type="button" className="btn btn-secondary" value = {'Sports'} onClick = { this.handleButton}>Sports</button>
           <button type="button" className="btn btn-secondary" value = {'Science'} onClick = { this.handleButton}>Science</button>
