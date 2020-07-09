@@ -32,7 +32,7 @@ class App extends Component {
                   totalElements: 0,
                   pagenum: 1,
                   viewsmap : new Map(),
-                  apikey: "f1c662dc68e14d058ea78ccba5448484",
+                  apikey: "70c030aa0b77453e98ed18165f56dcf8",
                   pginit: "http://cors-anywhere.herokuapp.com/",
                   query: '',
                   pageinit: 'http://ec2-18-222-83-136.us-east-2.compute.amazonaws.com:4500/',
@@ -119,7 +119,7 @@ nextpage = (event) => {
         console.log(this.state.query);
         var pageurl;
         console.log(this.state.pagenum);
-        if(this.state.query === "" || this.state.query==="All"){
+        if(this.state.query === ""){
           pageurl = this.state.pageinit + "v2/top-headlines?country=in&page="+this.state.pagenum + "&apiKey=" + this.state.apikey
         }
         else{
