@@ -35,7 +35,7 @@ class App extends Component {
                   apikey: "70c030aa0b77453e98ed18165f56dcf8",
                   pginit: "http://cors-anywhere.herokuapp.com/",
                   query: '',
-                  category: '',
+                  category: 'general',
                   pageinit: 'http://ec2-18-222-83-136.us-east-2.compute.amazonaws.com:4500/',
                   isloading : true,
 
@@ -70,8 +70,9 @@ class App extends Component {
   handleButton = (event) => {
 
     this.setState({pagenum: 1});
+    this.setState({category: event.target.value})
     this.setState({query: event.target.value})
-    
+    console.log(this.state.category)
     if(event.target.value === 'All'){
       var pageurl =  this.state.pageinit + "v2/top-headlines?country=in&apiKey=" + this.state.apikey;
     }
@@ -120,6 +121,7 @@ nextpage = (event) => {
         this.setState({pagenum: this.state.pagenum+1}, ()=>{
 
         console.log(this.state.query);
+        console.log(this.state.category);
         var pageurl;
         console.log(this.state.pagenum);
         if(this.state.query === ""){
@@ -160,21 +162,22 @@ fetchUrl(url){
 
       console.log(this.state.totalElements);
 
-      
+      console.log(this.state.data)
       this.state.data.map((dataelem,itr) => {
         
-        this.setState({arraysize: this.state.data.length - 2 })
+        this.setState({totalElements: this.state.data.length})
         console.log(this.state.data.length)
-        console.log(this.state.arraysize)
-        if(this.state.data.length - itr >=2 ){
+
+        console.log(dataelem['title'])
+
+        this.setState({totalElements:this.state.data.length })
                  var reff = firebase.firestore().collection("times").doc(dataelem['title']);
                   reff.get().then((res) => {
                     if (!res.exists) {
                       reff.set({ views: 0 })
                         }})
 
-                        
-      }
+                
       });
 
       var db = firebase.firestore().collection('times').get().then((querySnapshot) => {
@@ -193,12 +196,12 @@ fetchUrl(url){
 
   componentDidMount(){
     if(this.state.pagenum == 1){
-      var url = this.state.pageinit + "v2/top-headlines?country=in&apiKey=" + this.state.apikey;
+      var url = this.state.pageinit + "v2/top-headlines?country=us&apiKey=" + this.state.apikey;
       this.fetchUrl(url);
 
     }
     else{
-      var url = this.state.pageinit + "v2/top-headlines?country=in&page=" +this.state.pagenum + "&apiKey=" + this.state.apikey;
+      var url = this.state.pageinit + "v2/top-headlines?country=us&page=" +this.state.pagenum + "&apiKey=" + this.state.apikey;
       this.fetchUrl(url);
     }
   
